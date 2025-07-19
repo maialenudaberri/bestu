@@ -2,14 +2,14 @@ name: Ping Supabase
 
 on:
   schedule:
-    - cron: '0 8 * * 1'  # Lunes a las 8:00 UTC
+    - cron: '*/25 * * * *'  # Cada 25 minutos
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Llamar a Supabase
+      - name: Keep Supabase alive
         run: |
-          curl -I https://gxtlctdrpftzqoqrhfkz.supabase.co
+          curl -s https://gxtlctdrpftzqoqrhfkz.supabase.co
 

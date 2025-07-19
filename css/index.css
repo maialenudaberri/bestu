@@ -1,0 +1,23 @@
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+:root {
+    --bs-success: #5DB22F !important;
+    --bs-success-rgb: 93, 178, 47 !important;
+}
+
+.btn-success,
+.btn-success:active,
+.btn-success:focus,
+.btn-success:hover {
+    background-color: #5DB22F !important;
+    border-color: #5DB22F !important;
+}
+.form-control:focus {
+    border-color: #5DB22F !important;
+    box-shadow: 0 0 0 0.25rem rgba(93, 178, 47, 0.25) !important;
+}

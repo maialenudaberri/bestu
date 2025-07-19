@@ -1,0 +1,42 @@
+body {
+    background: #fff;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+.pregunta {
+    color: #5DB22F;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3.5rem;
+    margin-top: 0;
+    line-height: 1.2;
+}
+.botones {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+.btn-si {
+    background: #5DB22F;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 0.7rem 2.2rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.texto-no {
+    color: #5DB22F;
+    font-weight: 700;
+    align-self: center;
+    cursor: pointer;
+    font-size: 1rem;
+}

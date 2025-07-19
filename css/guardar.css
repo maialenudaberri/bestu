@@ -1,0 +1,138 @@
+body {
+    background: #fff;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+.logo-container {
+    padding: 1.2rem 1.2rem 0.5rem 1.2rem;
+}
+.logo-container img {
+    height: 38px;
+    width: auto;
+}
+.titulo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 1.2rem 1.2rem;
+}
+.persona-block {
+    margin-bottom: 2.2rem;
+}
+.persona-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.persona-foto {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+}
+.persona-nombre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #222;
+}
+.grupo-block {
+    margin-bottom: 0.7rem;
+}
+.grupo-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+}
+.grupo-checkbox, .prenda-checkbox {
+    width: 22px;
+    height: 22px;
+}
+.grupo-nombre {
+    font-weight: 700;
+    color: #222;
+    font-size: 1rem;
+}
+.prenda-lista {
+    margin-left: 2.2rem;
+}
+.prenda-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.2rem;
+}
+.prenda-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.7rem;
+}
+.prenda-nombre {
+    color: #444;
+    font-size: 1rem;
+    flex: 1;
+}
+.prenda-cantidad {
+    color: #888;
+    font-size: 1rem;
+    margin-left: 0.7rem;
+    margin-right: 1.2rem;
+}
+.bottom-nav {
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background: #fff;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.7rem 0;
+}
+.bottom-nav img {
+    height: 24px;
+    width: auto;
+}
+.content-wrapper {
+    max-width: 500px;
+    margin: 0 0 80px 1.2rem;
+    padding: 0;
+}
+input[type="checkbox"] {
+    accent-color: #5DB22F;
+}
+/* Checkbox personalizado: cuadrado blanco, tick verde */
+.custom-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #fff;
+    border: 2px solid #000;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: border 0.2s;
+}
+.custom-checkbox:checked {
+    background-color: #fff;
+    border: 2px solid #000;
+}
+.custom-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 7px;
+    height: 13px;
+    border: solid #5DB22F;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+    pointer-events: none;
+}

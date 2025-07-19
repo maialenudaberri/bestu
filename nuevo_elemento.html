@@ -61,19 +61,15 @@
     }
   </style>
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  import { supabase } from './supabaseClient.js'
 
-    const supabase = createClient(
-      'https://gxtlctdrpftzqoqrhfkz.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk'
-    );
+  const session = await supabase.auth.getSession();
+  if (!session.data.session) {
+    // Si no hay sesión, redirige al login
+    window.location.href = "login.html";
+  }
+</script>
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        window.location.href = 'login.html'; // Redirige al login si no ha iniciado sesión
-      }
-    });
-  </script>
 </head>
 <body>
   <h1>Nuevo Elemento</h1>

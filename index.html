@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inicio de sesión</title>
+
+    <link rel="stylesheet" href="CSS/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container d-flex justify-content-center align-items-center flex-column" style="max-width: 350px;">
+        <img src="Recursos/UDABERRI_LOGOA.png" alt="Logo" class="img-fluid mb-5">
+        
+        <form id="loginForm" class="w-100">
+            <div class="mb-3 text-start">
+                <label for="usuario" class="form-label fw-bold">Usuario (Email)</label>
+                <input type="email" id="usuario" class="form-control rounded-3" placeholder="Correo electrónico" required>
+            </div>
+
+            <div class="mb-3 text-start">
+                <label for="contrasena" class="form-label fw-bold">Contraseña</label>
+                <input type="password" id="contrasena" class="form-control rounded-3" placeholder="Contraseña" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-success rounded-3 fw-bold mt-3">Iniciar sesión</button>
+            </div>
+
+            <p id="mensaje" class="mt-3 text-center text-danger fw-bold"></p>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://gxtlctdrpftzqoqrhfkz.supabase.co',  // ← sustituye por tu URL real
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk'       // ← sustituye por tu clave pública
+        );
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('usuario').value;
+            const password = document.getElementById('contrasena').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                document.getElementById('mensaje').innerText = '❌ Error: ' + error.message;
+                return;
+            }
+
+            const userId = data.user.id;
+
+            const { data: approvedData, error: approvedError } = await supabase
+                .from('approved_users')
+                .select('approved')
+                .eq('id', userId)
+                .single();
+
+            if (approvedError || !approvedData || !approvedData.approved) {
+                document.getElementById('mensaje').innerText = '⛔ Tu cuenta aún no está aprobada. Contacta con la organización.';
+            } else {
+                window.location.href = 'home.html';
+            }
+        });
+    </script>
+
+</body>
+</html>

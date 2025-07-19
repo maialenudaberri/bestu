@@ -60,6 +60,20 @@
       font-size: 1rem;
     }
   </style>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://gxtlctdrpftzqoqrhfkz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk'
+    );
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        window.location.href = 'login.html'; // Redirige al login si no ha iniciado sesión
+      }
+    });
+  </script>
 </head>
 <body>
   <h1>Nuevo Elemento</h1>

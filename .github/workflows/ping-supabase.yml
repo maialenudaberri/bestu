@@ -12,3 +12,4 @@ jobs:
       - name: Llamar a Supabase
         run: |
           curl -I https://gxtlctdrpftzqoqrhfkz.supabase.co
+

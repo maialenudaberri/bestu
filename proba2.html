@@ -3,236 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nuevo </title>
+  <title>Nuevo Elemento</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2rem; }
-    h1 { margin-bottom: 1rem; }
-    label { display: block; margin: 0.5rem 0 0.2rem; font-weight: bold; }
-    input[type="text"], select {
-      width: 100%; padding: 0.5rem; margin-bottom: 1rem;
-      border: 1px solid #ccc; border-radius: 4px;
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
     }
-    .imagenes-checkbox { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; }
-    .imagenes-checkbox div { display: flex; flex-direction: column; align-items: center; width: 110px; }
-    .imagenes-checkbox input[type="checkbox"] { display: none; }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+      font-weight: bold;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .imagenes-checkbox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .imagenes-checkbox div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100px;
+    }
+    .imagenes-checkbox input[type="checkbox"] {
+      display: none;
+    }
     .imagenes-checkbox label {
-      border: 2px solid transparent; border-radius: 10px; padding: 5px; cursor: pointer; transition: 0.2s;
-      display: inline-block;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 5px;
+      cursor: pointer;
+      transition: 0.2s;
     }
     .imagenes-checkbox input[type="checkbox"]:checked + label {
-      border-color: #4CAF50; box-shadow: 0 0 5px #4CAF50;
+      border-color: #4CAF50;
+      box-shadow: 0 0 5px #4CAF50;
     }
-    .imagenes-checkbox img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; }
-    .imagenes-checkbox span { margin-top: 5px; font-size: 0.9rem; text-align: center; }
+    .imagenes-checkbox img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .imagenes-checkbox span {
+      margin-top: 5px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
     button {
-      background-color: #4CAF50; color: white; padding: 0.7rem 1.2rem; border: none; border-radius: 4px;
-      cursor: pointer; font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
     }
-    .logo-container img { height: 48px; }
   </style>
 
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+    import { supabase } from './supabaseClient.js'
 
-    // ⚙️ Supabase
-    const supabaseUrl = 'https://gxtlctdrpftzqoqrhfkz.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk';
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // 🔐 Comprobar sesión
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      // Si no hay sesión, redirigimos al login
-      window.location.href = 'login.html';
+    const session = await supabase.auth.getSession();
+    if (!session.data.session) {
+      window.location.href = "login.html";
     }
-
-    // 🧩 Helpers DOM
-    const bailesContainer = document.getElementById('bailes-container');
-    const tipoSelect = document.getElementById('tipo');
-    const posicionSelect = document.getElementById('posicion');
-    const codigoInput = document.getElementById('codigo');
-
-    // 🧠 Estado en memoria
-    let bailes = [];
-    let posiciones = [];
-
-    // 📥 Cargar opciones base (bailes, posiciones)
-    async function cargarOpciones() {
-      try {
-        const [bailesRes, posicionesRes] = await Promise.all([
-          supabase.from('bailes').select('id,nombre,imagen').order('nombre', { ascending: true }),
-          supabase.from('posiciones').select('id,nombre').order('nombre', { ascending: true })
-        ]);
-
-        if (bailesRes.error) throw bailesRes.error;
-        if (posicionesRes.error) throw posicionesRes.error;
-
-        bailes = bailesRes.data || [];
-        posiciones = posicionesRes.data || [];
-
-        // Render bailes (checkbox con imagen)
-        bailesContainer.innerHTML = '';
-        for (const b of bailes) {
-          const safeImagen = encodeURIComponent(b.imagen || '');
-          const id = `baile-${b.id}`;
-          bailesContainer.insertAdjacentHTML(
-            'beforeend',
-            `
-            <div>
-              <input type="checkbox" id="${id}" value="${b.id}" name="bailes" />
-              <label for="${id}">
-                <img src="Referencias/${safeImagen}" alt="${b.nombre}" />
-              </label>
-              <span>${b.nombre}</span>
-            </div>
-            `
-          );
-        }
-
-        // Listener para actualizar tipos cuando cambian bailes
-        bailesContainer.addEventListener('change', actualizarTipos);
-
-        // Render posiciones
-        posicionSelect.innerHTML = `<option value="">— Selecciona posición —</option>`;
-        for (const p of posiciones) {
-          posicionSelect.insertAdjacentHTML('beforeend', `<option value="${p.id}">${p.nombre}</option>`);
-        }
-
-        // Estado inicial de tipos (vacío hasta que se seleccione al menos un baile)
-        vaciarTipos('Selecciona al menos un baile');
-
-      } catch (err) {
-        console.error(err);
-        alert('Error cargando opciones: ' + err.message);
-      }
-    }
-
-    function obtenerBailesSeleccionados() {
-      return Array.from(document.querySelectorAll('input[name="bailes"]:checked'))
-        .map(cb => Number(cb.value));
-    }
-
-    function vaciarTipos(placeholder = '— Selecciona tipo —') {
-      tipoSelect.innerHTML = '';
-      tipoSelect.insertAdjacentHTML('beforeend', `<option value="">${placeholder}</option>`);
-      tipoSelect.disabled = true;
-    }
-
-    // 🔁 Actualizar tipos en función de los bailes seleccionados (usa tu tabla puente dantzatako_elementuk)
-    async function actualizarTipos() {
-      const seleccionados = obtenerBailesSeleccionados();
-      if (seleccionados.length === 0) {
-        vaciarTipos('Selecciona al menos un baile');
-        return;
-      }
-
-      try {
-        // 1) Traer los tipo_id asociados a cualquiera de los bailes seleccionados
-        const puente = await supabase
-          .from('dantzatako_elementuk')
-          .select('tipo_id, baile_id')
-          .in('baile_id', seleccionados);
-
-        if (puente.error) throw puente.error;
-
-        const tipoIds = Array.from(new Set((puente.data || []).map(r => r.tipo_id))).filter(Boolean);
-        if (tipoIds.length === 0) {
-          vaciarTipos('No hay tipos para esos bailes');
-          return;
-        }
-
-        // 2) Cargar los tipos por sus ids
-        const tiposRes = await supabase
-          .from('tipos')
-          .select('id,nombre')
-          .in('id', tipoIds)
-          .order('nombre', { ascending: true });
-
-        if (tiposRes.error) throw tiposRes.error;
-
-        const tipos = tiposRes.data || [];
-        tipoSelect.disabled = false;
-        tipoSelect.innerHTML = `<option value="">— Selecciona tipo —</option>`;
-        for (const t of tipos) {
-          tipoSelect.insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.nombre}</option>`);
-        }
-      } catch (err) {
-        console.error(err);
-        alert('Error actualizando tipos: ' + err.message);
-      }
-    }
-
-    // 💾 Guardar
-    async function guardarElemento() {
-      const codigo = (codigoInput.value || '').trim();
-      const tipo_id = tipoSelect.value ? Number(tipoSelect.value) : null;
-      const posicion_id = posicionSelect.value ? Number(posicionSelect.value) : null;
-      const bailes_ids = obtenerBailesSeleccionados();
-
-      // Validaciones mínimas
-      if (!codigo) return alert('Introduce un código.');
-      if (!bailes_ids.length) return alert('Selecciona al menos un baile.');
-      if (!tipo_id) return alert('Selecciona un tipo.');
-      // posición puede ser opcional -> no forzamos
-
-      try {
-        // 1) Insertar elemento
-        const { data: elementos, error: e1 } = await supabase
-          .from('elementos')
-          .insert({ codigo, tipo_id, posicion_id })
-          .select();
-
-        if (e1) throw e1;
-
-        const elemento = elementos?.[0];
-        if (!elemento?.id) throw new Error('No se recibió el ID del elemento');
-
-        // 2) Vincular bailes en tabla puente
-        const relaciones = bailes_ids.map(baile_id => ({ elemento_id: elemento.id, baile_id }));
-        const { error: e2 } = await supabase.from('elementos_bailes').insert(relaciones);
-        if (e2) throw e2;
-
-        alert('Elemento guardado correctamente');
-        // Opcional: reset del formulario
-        codigoInput.value = '';
-        document.querySelectorAll('input[name="bailes"]:checked').forEach(cb => (cb.checked = false));
-        actualizarTipos(); // vacía tipos al no haber bailes
-        posicionSelect.value = '';
-
-      } catch (err) {
-        console.error(err);
-        alert('Error al guardar: ' + err.message);
-      }
-    }
-
-    // Exponer para el onclick del botón
-    window.guardarElemento = guardarElemento;
-
-    // Inicializar
-    cargarOpciones();
   </script>
 </head>
 <body>
   <div class="logo-container">
     <div class="d-flex justify-content-start">
-      <img src="UDABERRI_LOGOA.png" alt="Logo">
+      <img src="Recursos/UDABERRI_LOGOA.png" alt="Logo">
     </div>
   </div>
 
   <h1>Nuevo Elemento</h1>
 
   <label>Selecciona bailes</label>
-  <div class="imagenes-checkbox" id="bailes-container"></div>
-
+  <div class="imagenes-checkbox" id="bailes-container">
+    <!-- Opciones dinámicas -->
+  </div>
+  
   <label for="tipo">Tipo</label>
-  <select id="tipo" disabled></select>
-
-  <label for="posicion">Posición</label>
-  <select id="posicion"></select>
+  <select id="tipo"></select>
 
   <label for="codigo">Código</label>
   <input type="text" id="codigo" />
 
+  
+
   <button onclick="guardarElemento()">Guardar</button>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js'
+
+    const supabaseUrl = 'https://gxtlctdrpftzqoqrhfkz.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    async function cargarOpciones() {
+      const [{ data: bailes }, { data: posiciones }, { data: tipos }] = await Promise.all([
+        supabase.from('bailes').select('*'),
+        supabase.from('posiciones').select('*'),
+        supabase.from('tipos').select('*')
+      ])
+
+      const bailesContainer = document.getElementById('bailes-container')
+      bailes.forEach(b => {
+        bailesContainer.innerHTML += `
+          <div>
+            <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+            <label for="baile-${b.id}">
+              <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
+            </label>
+            <span>${b.nombre}</span>
+          </div>
+        `
+      })
+      
+      const tipoSelect = document.getElementById('tipo')
+      tipos.forEach(t => {
+        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`
+      })
+
+      const posicionSelect = document.getElementById('posicion')
+      posiciones.forEach(p => {
+        posicionSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`
+      })
+
+      
+    }
+
+    function obtenerBailesSeleccionados() {
+      const checkboxes = document.querySelectorAll('input[name="bailes"]:checked')
+      return Array.from(checkboxes).map(cb => cb.value)
+    }
+
+    async function guardarElemento() {
+      const codigo = document.getElementById('codigo').value
+      const tipo_id = document.getElementById('tipo').value
+      const posicion_id = document.getElementById('posicion')?.value || null
+      const bailes_ids = obtenerBailesSeleccionados()
+
+      const { data: elemento, error } = await supabase
+        .from('elementos')
+        .insert({ codigo, tipo_id, posicion_id })
+        .select()
+        .single()
+
+      if (error) return alert('Error al insertar elemento: ' + error.message)
+
+      for (const baile_id of bailes_ids) {
+        const { error: e2 } = await supabase
+          .from('elementos_bailes')
+          .insert({ elemento_id: elemento.id, baile_id })
+        if (e2) return alert('Error al vincular baile: ' + e2.message)
+      }
+
+      alert('Elemento guardado correctamente')
+    }
+
+    cargarOpciones()
+  </script>
 </body>
 </html>

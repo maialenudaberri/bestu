@@ -159,15 +159,18 @@ async function actualizarTiposFiltrados() {
     }
 
     async function cargarOpciones() {
-      const [{ data: tipos }, { data: bailes }] = await Promise.all([
-        supabase.from('tipos').select('*'),
-        supabase.from('bailes').select('*')
-      ]);
-
-      const tipoSelect = document.getElementById('tipo');
-      tipos.forEach(t => {
-        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+      bailes.forEach(b => {
+        bailesContainer.innerHTML += `
+          <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+          <label for="baile-${b.id}">
+            <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
+            <div style="text-align: center; font-size: 14px; margin-top: 4px;">${b.nombre}</div>
+          </label>
+        `;
       });
+      
+      bailesContainer.addEventListener('change', actualizarTiposFiltrados);
+
 
       const bailesContainer = document.getElementById('bailes-container');
       bailes.forEach(b => {

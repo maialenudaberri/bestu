@@ -24,32 +24,50 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
     .imagenes-checkbox {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 1rem;
     }
+
     .imagenes-checkbox input[type="checkbox"] {
       display: none;
     }
-    .imagenes-checkbox label {
-      border: 2px solid transparent;
-      border-radius: 10px;
-      padding: 5px;
+
+    .baile-item {
+      text-align: center;
+      width: 100px;
+    }
+
+    .baile-item label {
+      display: block;
       cursor: pointer;
+      padding: 5px;
+      border-radius: 10px;
+      border: 2px solid transparent;
       transition: 0.2s;
     }
+
     .imagenes-checkbox input[type="checkbox"]:checked + label {
       border-color: #4CAF50;
       box-shadow: 0 0 5px #4CAF50;
     }
-    .imagenes-checkbox img {
+
+    .baile-item img {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 10px;
     }
+
+    .baile-nombre {
+      margin-top: 5px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
     button {
       background-color: #4CAF50;
       color: white;
@@ -120,10 +138,13 @@
       const bailesContainer = document.getElementById('bailes-container');
       bailes.forEach(b => {
         bailesContainer.innerHTML += `
-          <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
-          <label for="baile-${b.id}">
-            <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
-          </label>
+          <div class="baile-item">
+            <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+            <label for="baile-${b.id}">
+              <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
+              <div class="baile-nombre">${b.nombre}</div>
+            </label>
+          </div>
         `;
       });
 

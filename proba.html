@@ -111,37 +111,53 @@
     }
 
     async function actualizarTiposFiltrados() {
-      const seleccionados = obtenerBailesSeleccionados();
-      const tipoSelect = document.getElementById('tipo');
-      tipoSelect.innerHTML = '';
+      async function actualizarTiposFiltrados() {
+  const seleccionados = obtenerBailesSeleccionados();
+  const tipoSelect = document.getElementById('tipo');
+  tipoSelect.innerHTML = '';
 
-      if (seleccionados.length === 0) {
-        const { data: tipos } = await supabase.from('tipos').select('*');
-        tipos.forEach(t => {
-          tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
-        });
-      } else {
-        const { data: relaciones, error } = await supabase
-          .from('dantzatako_elementuk')
-          .select('tipo_id')
-          .in('baile_id', seleccionados);
+  if (seleccionados.length === 0) {
+    const { data: tipos } = await supabase.from('tipos').select('*');
+    tipos.forEach(t => {
+      tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+    });
+  } else {
+    console.log("Baile seleccionados:", seleccionados);
 
-        if (error) {
-          console.error('Error al obtener relaciones:', error);
-          return;
-        }
+    const { data: relaciones, error } = await supabase
+      .from('dantzatako_elementuk')
+      .select('*')
+      .in('baile_id', seleccionados);
 
-        const tipoIds = [...new Set(relaciones.map(r => r.tipo_id))];
+    if (error) {
+      console.error('Error al obtener relaciones:', error);
+      return;
+    }
 
-        const { data: tiposFiltrados } = await supabase
-          .from('tipos')
-          .select('*')
-          .in('id', tipoIds);
+    console.log("Relaciones encontradas:", relaciones);
 
-        tiposFiltrados.forEach(t => {
-          tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
-        });
-      }
+    const tipoIds = [...new Set(relaciones.map(r => r.tipo_id).filter(Boolean))];
+    if (tipoIds.length === 0) {
+      tipoSelect.innerHTML = `<option disabled>(Sin tipos relacionados)</option>`;
+      return;
+    }
+
+    const { data: tiposFiltrados, error: errorTipos } = await supabase
+      .from('tipos')
+      .select('*')
+      .in('id', tipoIds);
+
+    if (errorTipos) {
+      console.error('Error al cargar tipos filtrados:', errorTipos);
+      return;
+    }
+
+    tiposFiltrados.forEach(t => {
+      tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+    });
+  }
+}
+
     }
 
     async function cargarOpciones() {

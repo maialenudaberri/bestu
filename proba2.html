@@ -30,6 +30,12 @@
       gap: 10px;
       margin-bottom: 1rem;
     }
+    .imagenes-checkbox div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100px;
+    }
     .imagenes-checkbox input[type="checkbox"] {
       display: none;
     }
@@ -50,6 +56,11 @@
       object-fit: cover;
       border-radius: 10px;
     }
+    .imagenes-checkbox span {
+      margin-top: 5px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
     button {
       background-color: #4CAF50;
       color: white;
@@ -60,33 +71,30 @@
       font-size: 1rem;
     }
   </style>
+
   <script type="module">
-  import { supabase } from './supabaseClient.js'
+    import { supabase } from './supabaseClient.js'
 
-  const session = await supabase.auth.getSession();
-  if (!session.data.session) {
-    // Si no hay sesión, redirige al login
-    window.location.href = "login.html";
-  }
-</script>
-
+    const session = await supabase.auth.getSession();
+    if (!session.data.session) {
+      window.location.href = "login.html";
+    }
+  </script>
 </head>
 <body>
   <div class="logo-container">
-            <div class="d-flex justify-content-start">
-                <img src="Recursos/UDABERRI_LOGOA.png" alt="Logo">
-            </div>
+    <div class="d-flex justify-content-start">
+      <img src="Recursos/UDABERRI_LOGOA.png" alt="Logo">
+    </div>
   </div>
-  <h1>Nuevo Elemento</h1>
 
-  <label for="codigo">Código</label>
-  <input type="text" id="codigo" />
+  <h1>Nuevo Elemento</h1>
 
   <label for="tipo">Tipo</label>
   <select id="tipo"></select>
 
-  <label for="posicion">Posición</label>
-  <select id="posicion"></select>
+  <label for="codigo">Código</label>
+  <input type="text" id="codigo" />
 
   <label>Selecciona bailes</label>
   <div class="imagenes-checkbox" id="bailes-container">
@@ -122,10 +130,13 @@
       const bailesContainer = document.getElementById('bailes-container')
       bailes.forEach(b => {
         bailesContainer.innerHTML += `
-          <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
-          <label for="baile-${b.id}">
-            <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
-          </label>
+          <div>
+            <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+            <label for="baile-${b.id}">
+              <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
+            </label>
+            <span>${b.nombre}</span>
+          </div>
         `
       })
     }
@@ -138,7 +149,7 @@
     async function guardarElemento() {
       const codigo = document.getElementById('codigo').value
       const tipo_id = document.getElementById('tipo').value
-      const posicion_id = document.getElementById('posicion').value
+      const posicion_id = document.getElementById('posicion')?.value || null
       const bailes_ids = obtenerBailesSeleccionados()
 
       const { data: elemento, error } = await supabase

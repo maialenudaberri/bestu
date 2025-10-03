@@ -27,24 +27,23 @@
     .imagenes-checkbox {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 20px;
       margin-bottom: 1rem;
-    }
-    .imagenes-checkbox div {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100px;
     }
     .imagenes-checkbox input[type="checkbox"] {
       display: none;
     }
     .imagenes-checkbox label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       border: 2px solid transparent;
       border-radius: 10px;
       padding: 5px;
       cursor: pointer;
       transition: 0.2s;
+      text-align: center;
+      max-width: 100px;
     }
     .imagenes-checkbox input[type="checkbox"]:checked + label {
       border-color: #4CAF50;
@@ -54,12 +53,8 @@
       width: 80px;
       height: 80px;
       object-fit: cover;
-      border-radius: 10px;
-    }
-    .imagenes-checkbox span {
-      margin-top: 5px;
-      font-size: 0.9rem;
-      text-align: center;
+      border-radius: 50%;
+      margin-bottom: 0.3rem;
     }
     button {
       background-color: #4CAF50;
@@ -84,7 +79,7 @@
 <body>
   <div class="logo-container">
     <div class="d-flex justify-content-start">
-      <img src="UDABERRI_LOGOA.png" alt="Logo">
+      <img src="Recursos/UDABERRI_LOGOA.png" alt="Logo">
     </div>
   </div>
 
@@ -94,14 +89,12 @@
   <div class="imagenes-checkbox" id="bailes-container">
     <!-- Opciones dinámicas -->
   </div>
-  
+
   <label for="tipo">Tipo</label>
   <select id="tipo"></select>
 
   <label for="codigo">Código</label>
   <input type="text" id="codigo" />
-
-  
 
   <button onclick="guardarElemento()">Guardar</button>
 
@@ -112,69 +105,94 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    async function cargarOpciones() {
-      const [{ data: bailes }, { data: posiciones }, { data: tipos }] = await Promise.all([
-        supabase.from('bailes').select('*'),
-        supabase.from('posiciones').select('*'),
-        supabase.from('tipos').select('*')
-      ])
-
-      const bailesContainer = document.getElementById('bailes-container')
-      bailes.forEach(b => {
-        bailesContainer.innerHTML += `
-          <div>
-            <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
-            <label for="baile-${b.id}">
-              <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
-            </label>
-            <span>${b.nombre}</span>
-          </div>
-        `
-      })
-      
-      const tipoSelect = document.getElementById('tipo')
-      tipos.forEach(t => {
-        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`
-      })
-
-      const posicionSelect = document.getElementById('posicion')
-      posiciones.forEach(p => {
-        posicionSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`
-      })
-
-      
+    function obtenerBailesSeleccionados() {
+      const checkboxes = document.querySelectorAll('input[name="bailes"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
     }
 
-    function obtenerBailesSeleccionados() {
-      const checkboxes = document.querySelectorAll('input[name="bailes"]:checked')
-      return Array.from(checkboxes).map(cb => cb.value)
+    async function actualizarTiposFiltrados() {
+      const seleccionados = obtenerBailesSeleccionados();
+      const tipoSelect = document.getElementById('tipo');
+      tipoSelect.innerHTML = '';
+
+      if (seleccionados.length === 0) {
+        const { data: tipos } = await supabase.from('tipos').select('*');
+        tipos.forEach(t => {
+          tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+        });
+      } else {
+        const { data: relaciones, error } = await supabase
+          .from('dantzatako_elementuk')
+          .select('tipo_id')
+          .in('baile_id', seleccionados);
+
+        if (error) {
+          console.error('Error al obtener relaciones:', error);
+          return;
+        }
+
+        const tipoIds = [...new Set(relaciones.map(r => r.tipo_id))];
+
+        const { data: tiposFiltrados } = await supabase
+          .from('tipos')
+          .select('*')
+          .in('id', tipoIds);
+
+        tiposFiltrados.forEach(t => {
+          tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+        });
+      }
+    }
+
+    async function cargarOpciones() {
+      const [{ data: tipos }, { data: bailes }] = await Promise.all([
+        supabase.from('tipos').select('*'),
+        supabase.from('bailes').select('*')
+      ]);
+
+      const tipoSelect = document.getElementById('tipo');
+      tipos.forEach(t => {
+        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+      });
+
+      const bailesContainer = document.getElementById('bailes-container');
+      bailes.forEach(b => {
+        bailesContainer.innerHTML += `
+          <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+          <label for="baile-${b.id}">
+            <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
+            ${b.nombre}
+          </label>
+        `;
+      });
+
+      bailesContainer.addEventListener('change', actualizarTiposFiltrados);
     }
 
     async function guardarElemento() {
-      const codigo = document.getElementById('codigo').value
-      const tipo_id = document.getElementById('tipo').value
-      const posicion_id = document.getElementById('posicion')?.value || null
-      const bailes_ids = obtenerBailesSeleccionados()
+      const codigo = document.getElementById('codigo').value;
+      const tipo_id = document.getElementById('tipo').value;
+      const bailes_ids = obtenerBailesSeleccionados();
 
       const { data: elemento, error } = await supabase
         .from('elementos')
-        .insert({ codigo, tipo_id, posicion_id })
+        .insert({ codigo, tipo_id })
         .select()
-        .single()
+        .single();
 
-      if (error) return alert('Error al insertar elemento: ' + error.message)
+      if (error) return alert('Error al insertar elemento: ' + error.message);
 
       for (const baile_id of bailes_ids) {
         const { error: e2 } = await supabase
           .from('elementos_bailes')
-          .insert({ elemento_id: elemento.id, baile_id })
-        if (e2) return alert('Error al vincular baile: ' + e2.message)
+          .insert({ elemento_id: elemento.id, baile_id });
+        if (e2) return alert('Error al vincular baile: ' + e2.message);
       }
 
-      alert('Elemento guardado correctamente')
+      alert('Elemento guardado correctamente');
     }
 
-    cargarOpciones()
+    cargarOpciones();
   </script>
 </body>
 </html>

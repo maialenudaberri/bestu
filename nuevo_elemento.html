@@ -102,9 +102,8 @@
 
     async function cargarOpciones() {
       const [{ data: tipos }, { data: posiciones }, { data: bailes }] = await Promise.all([
+        supabase.from('bailes').select('*'),
         supabase.from('tipos').select('*'),
-        supabase.from('posiciones').select('*'),
-        supabase.from('bailes').select('*')
       ])
 
       const tipoSelect = document.getElementById('tipo')

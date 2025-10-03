@@ -113,21 +113,11 @@
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     async function cargarOpciones() {
-      const [{ data: tipos }, { data: posiciones }, { data: bailes }] = await Promise.all([
-        supabase.from('tipos').select('*'),
+      const [{ data: bailes }, { data: posiciones }, { data: tipos }] = await Promise.all([
+        supabase.from('bailes').select('*'),
         supabase.from('posiciones').select('*'),
-        supabase.from('bailes').select('*')
+        supabase.from('tipos').select('*')
       ])
-
-      const tipoSelect = document.getElementById('tipo')
-      tipos.forEach(t => {
-        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`
-      })
-
-      const posicionSelect = document.getElementById('posicion')
-      posiciones.forEach(p => {
-        posicionSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`
-      })
 
       const bailesContainer = document.getElementById('bailes-container')
       bailes.forEach(b => {
@@ -141,6 +131,18 @@
           </div>
         `
       })
+      
+      const tipoSelect = document.getElementById('tipo')
+      tipos.forEach(t => {
+        tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`
+      })
+
+      const posicionSelect = document.getElementById('posicion')
+      posiciones.forEach(p => {
+        posicionSelect.innerHTML += `<option value="${p.id}">${p.nombre}</option>`
+      })
+
+      
     }
 
     function obtenerBailesSeleccionados() {

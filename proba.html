@@ -105,18 +105,19 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4dGxjdGRycGZ0enFvcXJoZmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIyNjA2MzIsImV4cCI6MjA2NzgzNjYzMn0.BpdMUuEI9GB9dT2EE7H--FeSthUfsaikb2MxuFYqVdk';
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    function obtenerBailesSeleccionados() {
-  const checkboxes = document.querySelectorAll('input[name="bailes"]:checked');
-  return Array.from(checkboxes).map(cb => parseInt(cb.value)); // aseguramos que sean números
+    function obtenerBaileSeleccionado() {
+  const seleccionado = document.querySelector('input[name="bailes"]:checked');
+  return seleccionado ? parseInt(seleccionado.value) : null;
 }
 
+
 async function actualizarTiposFiltrados() {
-  const seleccionados = obtenerBailesSeleccionados();
+  async function actualizarTiposFiltrados() {
+  const seleccionado = obtenerBaileSeleccionado();
   const tipoSelect = document.getElementById('tipo');
   tipoSelect.innerHTML = '';
 
-  if (seleccionados.length === 0) {
-    // Si no hay ningún baile seleccionado, NO mostramos nada
+  if (!seleccionado) {
     tipoSelect.innerHTML = `<option disabled selected>Selecciona primero un baile</option>`;
     return;
   }
@@ -124,7 +125,7 @@ async function actualizarTiposFiltrados() {
   const { data: relaciones, error } = await supabase
     .from('dantzatako_elementuk')
     .select('tipo_id')
-    .in('baile_id', seleccionados);
+    .eq('baile_id', seleccionado);
 
   if (error || !relaciones) {
     console.error('Error al cargar relaciones:', error);
@@ -132,12 +133,22 @@ async function actualizarTiposFiltrados() {
     return;
   }
 
-  const tipoIds = [...new Set(relaciones.map(r => r.tipo_id))];
-
+  const tipoIds = relaciones.map(r => r.tipo_id);
   if (tipoIds.length === 0) {
     tipoSelect.innerHTML = `<option disabled selected>No hay tipos disponibles</option>`;
     return;
   }
+
+  const { data: tiposFiltrados } = await supabase
+    .from('tipos')
+    .select('*')
+    .in('id', tipoIds);
+
+  tiposFiltrados.forEach(t => {
+    tipoSelect.innerHTML += `<option value="${t.id}">${t.nombre}</option>`;
+  });
+}
+
 
   const { data: tiposFiltrados, error: errorTipos } = await supabase
     .from('tipos')
@@ -159,15 +170,17 @@ async function actualizarTiposFiltrados() {
     }
 
     async function cargarOpciones() {
+      const bailesContainer = document.getElementById('bailes-container')
       bailes.forEach(b => {
         bailesContainer.innerHTML += `
-          <input type="checkbox" id="baile-${b.id}" value="${b.id}" name="bailes" />
+          <input type="radio" id="baile-${b.id}" value="${b.id}" name="bailes" />
           <label for="baile-${b.id}">
             <img src="Referencias/${b.imagen}" alt="${b.nombre}" />
             <div style="text-align: center; font-size: 14px; margin-top: 4px;">${b.nombre}</div>
           </label>
-        `;
-      });
+        `
+      })
+
       
       bailesContainer.addEventListener('change', actualizarTiposFiltrados);
 
